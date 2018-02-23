@@ -46,7 +46,7 @@ import org.kohsuke.stapler.StaplerRequest;
 
 /**
  * @author Mike
- * 
+ *
  */
 public class GithubRequireOrganizationMembershipACL extends ACL {
 
@@ -65,7 +65,7 @@ public class GithubRequireOrganizationMembershipACL extends ACL {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see hudson.security.ACL#hasPermission(org.acegisecurity.Authentication,
 	 * hudson.security.Permission)
 	 */

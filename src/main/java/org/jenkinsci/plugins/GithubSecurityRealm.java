@@ -57,6 +57,11 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLContexts;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.client.HttpClient;
 import org.apache.http.util.EntityUtils;
 import org.jfree.util.Log;
 import org.kohsuke.github.GHOrganization;
@@ -70,6 +75,7 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataRetrievalFailureException;
 
+import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -347,7 +353,7 @@ public class GithubSecurityRealm extends SecurityRealm {
 	 * ping-pong.
 	 */
 	public HttpResponse doFinishLogin(StaplerRequest request)
-			throws IOException {
+			throws Exception {
 
 		String code = request.getParameter("code");
 
@@ -358,11 +364,25 @@ public class GithubSecurityRealm extends SecurityRealm {
 
 		Log.info("test");
 
-		HttpPost httpost = new HttpPost(githubWebUri
+
+        SSLContext sslContext = SSLContexts.custom()
+                .useTLS()
+                .build();
+
+        SSLConnectionSocketFactory f = new SSLConnectionSocketFactory(
+                sslContext,
+                new String[]{"TLSv1.2"},
+                null,
+				SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
+
+        HttpClient httpclient = HttpClients.custom()
+                .setSSLSocketFactory(f)
+                .build();
+
+        HttpPost httpost = new HttpPost(githubWebUri
 				+ "/login/oauth/access_token?" + "client_id=" + clientID + "&"
 				+ "client_secret=" + clientSecret + "&" + "code=" + code);
 
-        DefaultHttpClient httpclient = new DefaultHttpClient();
         HttpHost proxy = getProxy(httpost);
         if (proxy != null) {
             httpclient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
